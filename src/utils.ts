@@ -88,11 +88,11 @@ export function addHiddenProperties(target: Object, props: Object) {
 // }
 
 export function isClass(fn: Function) {
-    return typeof fn === 'function' 
+    return typeof fn === 'function'
         && /^class\s/.test(Function.prototype.toString.call(fn));
 }
 
-export function getBoundObjectProperty (object: objectInstance, propKey: string) {
+export function getBoundObjectProperty(object: objectInstance, propKey: string) {
     let objectProperty = object[propKey]
     if (typeof objectProperty === 'function' && !isClass(objectProperty)) {
         const objectFunction = objectProperty
@@ -101,8 +101,8 @@ export function getBoundObjectProperty (object: objectInstance, propKey: string)
     return objectProperty
 }
 
-export function getFirstDefinedProperty (propKey: string, ...objects: Object[]) { 
-    const objectWithProp = objects.find((object: objectInstance ) => object[propKey] !== undefined) as objectInstance
+export function getFirstDefinedProperty(propKey: string, ...objects: Object[]) {
+    const objectWithProp = objects.find((object: objectInstance) => object[propKey] !== undefined) as objectInstance
     return {
         or: (defaultProperty: any) => objectWithProp !== undefined ? getBoundObjectProperty(objectWithProp, propKey) : defaultProperty
     }
@@ -117,7 +117,7 @@ export function getProxiedSchemaValue(propKey: string, conifg: getProxiedSchemaV
     }
 }
 
-export function capitalize (str: string) {
+export function capitalize(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
