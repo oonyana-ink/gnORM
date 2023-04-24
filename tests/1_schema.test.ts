@@ -3,6 +3,12 @@ import { Schema } from '../src'
 
 describe('Schema', () => {
     @Schema.define
+    class NestedSchema extends Schema {
+        @Schema.field
+        nestedField: string
+    }
+
+    @Schema.define
     class TestSchema extends Schema {
         @Schema.field
         id: string
@@ -12,12 +18,18 @@ describe('Schema', () => {
 
         @Schema.field({ required: true })
         requiredField: string
+
+        @Schema.field
+        nestedField: NestedSchema
     }
 
     const validData = {
         id: 'id-123',
         name: 'James',
-        requiredField: 'required'
+        requiredField: 'required',
+        nestedField: {
+            nestedField: 'nested'
+        }
     }
 
     const invalidData = {
@@ -46,6 +58,10 @@ describe('Schema', () => {
             requiredField: {
                 code: "required",
                 message: "Required Field is required."
+            },
+            nestedField: {
+                code: "required",
+                message: "Nested Field is required."
             }
         }
     }
@@ -54,11 +70,19 @@ describe('Schema', () => {
         expect(TestSchema.fields).toBeDefined()
         expect(TestSchema.blankDataset).toBeDefined()
         expect(TestSchema.validator).toBeDefined()
-        expect(TestSchema.fieldKeys).toEqual(['id', 'name', 'requiredField'])
+        expect(TestSchema.fieldKeys).toEqual(['id', 'name', 'requiredField', 'nestedField'])
     })
 
     test('should be able to create blank dataset', () => {
-        expect(TestSchema.blankDataset()).toEqual({ id: '', name: '', requiredField: '' })
+        const blankDataset = {
+            id: '',
+            name: '',
+            requiredField: '',
+            nestedField: {
+                nestedField: ''
+            }
+        }
+        expect(TestSchema.blankDataset()).toEqual(blankDataset)
         expect(TestSchema.parse(validData)).toEqual(validDataState)
     })
 
@@ -106,6 +130,12 @@ describe('Schema', () => {
 
             @Schema.field({ url: true })
             url: string
+
+            @Schema.field({ gt: 5 })
+            greaterThan: number
+
+            @Schema.field({ lt: 5 })
+            lessThan: number
         }
 
         const dataState = ValidationSchema.parse({
@@ -117,7 +147,9 @@ describe('Schema', () => {
             exactString: '123456',
             exactString2: '123',
             email: 'invalid-email',
-            url: 'invalid-url'
+            url: 'invalid-url',
+            greaterThan: 3,
+            lessThan: 6
         })
 
         console.dir(dataState.errors.byField)

@@ -181,4 +181,25 @@ describe('Model', () => {
         expect(TestModel.create(testModel)).toBe(true)
 
     })
+
+    test('should not set undefined field values', () => {
+        const testData = { 
+            id: 'test-id',
+            lowNumber: 5,
+            nested: {
+                nestedField: 'nested-field'
+            }
+        }
+
+        const testDataWithUndefinedField = {
+            ...testData,
+            undefinedField: 'undefined-field'
+        }
+
+        const testModel = new TestModel(testDataWithUndefinedField)
+        expect(testModel).toEqual(testData)
+
+        testModel.undefinedField = 'updated-undefined-field'
+        expect(testModel).toEqual(testData)
+    })
 })
