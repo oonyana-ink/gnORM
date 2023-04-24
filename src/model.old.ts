@@ -1,7 +1,7 @@
 import { Changeset } from './changeset'
 
 abstract class BaseModel {
-    constructor(data: ModelData) {}
+    constructor(data: ModelData) { }
     // static schema: ModelSchema<Function | Object>
     // static collection: DatasourceCollection
     // static validator: ModelValidator
@@ -78,7 +78,7 @@ function buildModelClassProxy<ClassDefinition extends Function | ClassConstructo
             return buildModelInstanceProxy(ModelClass)
         }
     })
-    
+
     return ModelClassProxy as ClassDefinition
 }
 
@@ -86,9 +86,9 @@ function buildModelInstanceProxy(ModelClass: ClassConstructor) {
     const data = ModelClass.schema.parse({})
     const modelInstance = new ModelClass()
     modelInstance.schema = ModelClass.schema
-    
+
     const ModelInstanceProxy = new Proxy(data, {
-        get (target, prop, receiver) {
+        get(target, prop, receiver) {
             // console.log('ModelInstanceProxy:get > prop', prop)
             let targetProp = Reflect.get(target, prop, receiver)
             console.log('ModelInstanceProxy:get > targetProp', targetProp)

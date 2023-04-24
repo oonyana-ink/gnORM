@@ -18,7 +18,6 @@ describe('Model', () => {
         @Schema.field
         nestedField: string
     }
-
     @Schema.define
     class TestSchema extends Schema {
         @Schema.field

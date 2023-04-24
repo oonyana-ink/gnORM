@@ -35,7 +35,6 @@ export class Validator {
         Object.entries(Schema.fields).forEach(([fieldKey, field]) => {
             const { fieldConfig } = field
             const typeName: string = field.typeClass.name.toLowerCase()
-
             if (Object.keys(validationKeywords).includes(typeName)) {
                 let fieldZSchema = resolveZValidator(zRoot, typeName)()
                 Object.entries(fieldConfig).forEach(([key, value]) => {
