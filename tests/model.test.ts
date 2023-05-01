@@ -135,7 +135,6 @@ describe('Model', () => {
 
     test('should not set undefined field values', () => {
         const testData = {
-<<<<<<< HEAD
             id: 'test-id',
             lowNumber: 5,
             nested: {
@@ -185,8 +184,6 @@ describe('Model', () => {
 
     test('should not set undefined field values', () => {
         const testData = {
-=======
->>>>>>> 8b11997 (Collections and datasources)
             id: 'test-id',
             lowNumber: 5,
             nested: {
@@ -222,6 +219,15 @@ describe('Model', () => {
     })
 
     test('should be able to create a record', async () => {
-        expect(TestModel.create({})).toBe(true)
+        const testModel = new TestModel({
+            id: 1,
+            nested: {
+                nestedField: 'nested-field'
+            },
+            lowNumber: 5
+        })
+        console.log(testModel)
+        expect(TestModel.create(testModel)).toBe(true)
+
     })
 })
