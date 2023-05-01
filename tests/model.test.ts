@@ -45,18 +45,6 @@ describe('Model', () => {
     @Model.from(TestSchema2)
     class TestModel2 extends Model { }
 
-    @Schema.define
-    class TestSchema2 extends Schema {
-        @Schema.field
-        id: string
-
-        @Schema.field
-        anotherField: string
-    }
-
-    @Model.from(TestSchema2)
-    class TestModel2 extends Model { }
-
     test('should be definable', () => {
         expect(TestModel.Schema).toBeDefined()
         expect(TestModel.Schema.fields).toBeDefined()
@@ -147,6 +135,7 @@ describe('Model', () => {
 
     test('should not set undefined field values', () => {
         const testData = {
+<<<<<<< HEAD
             id: 'test-id',
             lowNumber: 5,
             nested: {
@@ -196,6 +185,8 @@ describe('Model', () => {
 
     test('should not set undefined field values', () => {
         const testData = {
+=======
+>>>>>>> 8b11997 (Collections and datasources)
             id: 'test-id',
             lowNumber: 5,
             nested: {
@@ -215,10 +206,11 @@ describe('Model', () => {
         expect(testModel).toEqual(testData)
     })
 
-    test('should have a datasource', () => {
-        expect(TestModel.datasource).toBeDefined()
-        expect(TestModel.datasource.collectionName).toBe('TestModels')
+    test('should have be able to interface with the datastore', () => {
+        // expect(TestModel.datasource).toBeDefined()
+        // expect(TestModel.datasource.collectionName).toBe('TestModels')
         expect(TestModel.collectionName).toBe('TestModels')
+        expect(TestModel.collection).toBeDefined()
         expect(typeof TestModel.get).toBe('function')
         expect(typeof TestModel.getMany).toBe('function')
         expect(typeof TestModel.create).toBe('function')
@@ -227,5 +219,9 @@ describe('Model', () => {
         expect(typeof TestModel.updateMany).toBe('function')
         expect(typeof TestModel.delete).toBe('function')
         expect(typeof TestModel.deleteMany).toBe('function')
+    })
+
+    test('should be able to create a record', async () => {
+        expect(TestModel.create({})).toBe(true)
     })
 })

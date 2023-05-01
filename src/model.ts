@@ -9,6 +9,7 @@ import { Collection } from "./collection"
 //             Base Class
 // -------------------------------------
 class BaseModel {
+<<<<<<< HEAD
     _schema: SchemaInstance
     _record: RecordInstance
     _changeset: ChangesetInstance
@@ -21,6 +22,20 @@ class BaseModel {
         return this.name + 's'
     }
 
+=======
+    schema: SchemaInstance
+    record: RecordInstance
+    changeset: ChangesetInstance
+
+    get data() {
+        return this.changeset.data
+    }
+
+    static get collectionName() {
+        return this.name + 's'
+    }
+
+>>>>>>> 8b11997 (Collections and datasources)
     static datasource: string = 'primary'
     static Schema: SchemaDefinition
     static schema: SchemaInstance
@@ -38,10 +53,17 @@ const ModelProxy = new Proxy(BaseModel, {
         const model = new target() as ModelInstance
 
         model.name = receiver.prototype.name
+<<<<<<< HEAD
         model._schema = schema
         model._collection = collection
         model._changeset = new Changeset(data, model)
         model._record = new Record(model)
+=======
+        model.schema = schema
+        model.collection = collection
+        model.changeset = new Changeset(data, model)
+        model.record = new Record(model)
+>>>>>>> 8b11997 (Collections and datasources)
 
         const modelProxy = modelInstanceProxy(model)
         return modelProxy
@@ -70,7 +92,11 @@ const modelInstanceProxy = (model: ModelInstance) => {
         },
 
         set(target, key: string, value, receiver) {
+<<<<<<< HEAD
             model._changeset.set(key, value)
+=======
+            model.changeset.set(key, value)
+>>>>>>> 8b11997 (Collections and datasources)
             return true
         }
     })
@@ -87,7 +113,11 @@ const modelDecorators: modelDecoratorsMap = {
         addHiddenProperties(ModelClass.prototype, {
             Schema: SchemaClass,
             schema: new SchemaClass(),
+<<<<<<< HEAD
             collection: new Collection(ModelClass)
+=======
+            collection: new Collection(ModelClass.prototype)
+>>>>>>> 8b11997 (Collections and datasources)
         })
     }
 }

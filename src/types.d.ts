@@ -85,10 +85,14 @@ interface ModelClassConstructor extends DatasourceInstance {
     field: Function
     schema: SchemaInstance
 <<<<<<< HEAD
+<<<<<<< HEAD
     collection: CollectionInstance
 =======
     datasource: DatasourceInstance
 >>>>>>> 70c4c09 (More groundwork + more tests)
+=======
+    collection: CollectionInstance
+>>>>>>> 8b11997 (Collections and datasources)
     [key: string]: any
 }
 
