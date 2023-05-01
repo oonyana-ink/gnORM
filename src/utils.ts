@@ -8,12 +8,12 @@ export function splitCamelCase(str: string): string[] {
     return str.split(/(?=[A-Z])/);
 }
 
-// export function updateClassName(target: any, className: string) {
-//     Object.defineProperty(target, 'name', {
-//         value: className,
-//         writable: false
-//     });
-// }
+export function updateClassName(target: any, className: string) {
+    Object.defineProperty(target, 'name', {
+        value: className,
+        writable: false
+    });
+}
 
 export function getOrDefineProperty(target: Object, propName: string, propDefault: any) {
     const existingDesc = Object.getOwnPropertyDescriptor(target, propName);

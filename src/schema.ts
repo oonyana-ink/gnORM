@@ -44,7 +44,11 @@ const SchemaProxy = new Proxy(BaseSchema, {
 
 const schemaInstanceProxy = (schema: SchemaInstance, SchemaClass: ClassConstructor) => {
     return new Proxy(schema, {
+<<<<<<< HEAD
         get(target, key: string, receiver) {
+=======
+        get (target, key: string, receiver) {
+>>>>>>> 70c4c09 (More groundwork + more tests)
             return getFirstDefinedProperty(key, SchemaClass).or(Reflect.get(target, key, receiver))
         }
     })

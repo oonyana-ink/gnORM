@@ -45,6 +45,18 @@ describe('Model', () => {
     @Model.from(TestSchema2)
     class TestModel2 extends Model { }
 
+    @Schema.define
+    class TestSchema2 extends Schema {
+        @Schema.field
+        id: string
+
+        @Schema.field
+        anotherField: string
+    }
+
+    @Model.from(TestSchema2)
+    class TestModel2 extends Model { }
+
     test('should be definable', () => {
         expect(TestModel.Schema).toBeDefined()
         expect(TestModel.Schema.fields).toBeDefined()
@@ -183,7 +195,7 @@ describe('Model', () => {
     })
 
     test('should not set undefined field values', () => {
-        const testData = { 
+        const testData = {
             id: 'test-id',
             lowNumber: 5,
             nested: {
@@ -201,5 +213,19 @@ describe('Model', () => {
 
         testModel.undefinedField = 'updated-undefined-field'
         expect(testModel).toEqual(testData)
+    })
+
+    test('should have a datasource', () => {
+        expect(TestModel.datasource).toBeDefined()
+        expect(TestModel.datasource.collectionName).toBe('TestModels')
+        expect(TestModel.collectionName).toBe('TestModels')
+        expect(typeof TestModel.get).toBe('function')
+        expect(typeof TestModel.getMany).toBe('function')
+        expect(typeof TestModel.create).toBe('function')
+        expect(typeof TestModel.createMany).toBe('function')
+        expect(typeof TestModel.update).toBe('function')
+        expect(typeof TestModel.updateMany).toBe('function')
+        expect(typeof TestModel.delete).toBe('function')
+        expect(typeof TestModel.deleteMany).toBe('function')
     })
 })
