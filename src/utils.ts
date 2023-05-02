@@ -1,32 +1,36 @@
-export const privatePropertyConfig = {
-    enumerable: false,
-    configurable: false,
-    writable: false
-}
+// export const privatePropertyConfig = {
+//     enumerable: false,
+//     configurable: false,
+//     writable: false
+// }
 
 export function splitCamelCase(str: string): string[] {
     return str.split(/(?=[A-Z])/);
 }
 
-export function updateClassName(target: any, className: string) {
-    Object.defineProperty(target, 'name', {
-        value: className,
-        writable: false
-    });
+export function capitalize(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function getOrDefineProperty(target: Object, propName: string, propDefault: any) {
-    const existingDesc = Object.getOwnPropertyDescriptor(target, propName);
-    if (existingDesc) {
-        return existingDesc.value;
-    } else {
-        Object.defineProperty(target, propName, {
-            value: propDefault,
-            writable: true
-        });
-        return propDefault;
-    }
-}
+// export function updateClassName(target: any, className: string) {
+//     Object.defineProperty(target, 'name', {
+//         value: className,
+//         writable: false
+//     });
+// }
+
+// export function getOrDefineProperty(target: Object, propName: string, propDefault: any) {
+//     const existingDesc = Object.getOwnPropertyDescriptor(target, propName);
+//     if (existingDesc) {
+//         return existingDesc.value;
+//     } else {
+//         Object.defineProperty(target, propName, {
+//             value: propDefault,
+//             writable: true
+//         });
+//         return propDefault;
+//     }
+// }
 
 // export function makePropertyPrivate(target: Object, propName: string) {
 //     const existingDesc = Object.getOwnPropertyDescriptor(target, propName);
@@ -39,14 +43,14 @@ export function getOrDefineProperty(target: Object, propName: string, propDefaul
 //     }
 // }
 
-export function addHiddenProperties(target: Object, props: Object) {
-    Object.entries(props).forEach(([key, value]) => {
-        Object.defineProperty(target, key, {
-            value,
-            ...privatePropertyConfig
-        })
-    })
-}
+// export function addHiddenProperties(target: Object, props: Object) {
+//     Object.entries(props).forEach(([key, value]) => {
+//         Object.defineProperty(target, key, {
+//             value,
+//             ...privatePropertyConfig
+//         })
+//     })
+// }
 
 // export function mapDataToFields(data: ModelData, fields: SchemaField[]) {
 //     const mappedData: ModelData = {}
@@ -87,42 +91,39 @@ export function addHiddenProperties(target: Object, props: Object) {
 //     }
 // }
 
-export function isClass(fn: Function) {
-    return typeof fn === 'function'
-        && /^class\s/.test(Function.prototype.toString.call(fn));
-}
+// export function isClass(fn: Function) {
+//     return typeof fn === 'function'
+//         && /^class\s/.test(Function.prototype.toString.call(fn));
+// }
 
-export function getBoundObjectProperty(object: objectInstance, propKey: string) {
-    let objectProperty = object[propKey]
-    if (typeof objectProperty === 'function' && !isClass(objectProperty)) {
-        const objectFunction = objectProperty
-        objectProperty = (...args: any[]) => objectFunction.apply(object, args)
-    }
-    return objectProperty
-}
+// export function getBoundObjectProperty(object: objectInstance, propKey: string) {
+//     let objectProperty = object[propKey]
+//     if (typeof objectProperty === 'function' && !isClass(objectProperty)) {
+//         const objectFunction = objectProperty
+//         objectProperty = (...args: any[]) => objectFunction.apply(object, args)
+//     }
+//     return objectProperty
+// }
 
-export function getFirstDefinedProperty(propKey: string, ...objects: Object[]) {
-    const objectWithProp = objects.find((object: objectInstance) => object[propKey] !== undefined) as objectInstance
-    return {
-        or: (defaultProperty: any) => objectWithProp !== undefined ? getBoundObjectProperty(objectWithProp, propKey) : defaultProperty
-    }
-}
+// export function getFirstDefinedProperty(propKey: string, ...objects: Object[]) {
+//     const objectWithProp = objects.find((object: objectInstance) => object[propKey] !== undefined) as objectInstance
+//     return {
+//         or: (defaultProperty: any) => objectWithProp !== undefined ? getBoundObjectProperty(objectWithProp, propKey) : defaultProperty
+//     }
+// }
 
-export function getProxiedSchemaValue(propKey: string, conifg: getProxiedSchemaValueConfig) {
-    const { primarySource, schemaFields, fallbackSources, defaultValue } = conifg
-    if (schemaFields.includes(propKey)) {
-        return primarySource[propKey]
-    } else {
-        return getFirstDefinedProperty(propKey, ...fallbackSources).or(defaultValue)
-    }
-}
+// export function getProxiedSchemaValue(propKey: string, conifg: getProxiedSchemaValueConfig) {
+//     const { primarySource, schemaFields, fallbackSources, defaultValue } = conifg
+//     if (schemaFields.includes(propKey)) {
+//         return primarySource[propKey]
+//     } else {
+//         return getFirstDefinedProperty(propKey, ...fallbackSources).or(defaultValue)
+//     }
+// }
 
-export function capitalize(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
-export function mapProperties(propKeys: string[], source: objectInstance) {
-    const mappedProperties = {} as objectInstance
-    propKeys.forEach(propKey => mappedProperties[propKey] = source[propKey])
-    return mappedProperties
-}
+// export function mapProperties(propKeys: string[], source: objectInstance) {
+//     const mappedProperties = {} as objectInstance
+//     propKeys.forEach(propKey => mappedProperties[propKey] = source[propKey])
+//     return mappedProperties
+// }
