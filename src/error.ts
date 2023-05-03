@@ -60,18 +60,18 @@ const resolveIssueCode = (issue: ErrorIssue) => {
     return issueCode
 }
 
-export const ValidationError = (error: ZodError): FieldIssues => {
+export const ValidationError = (error: ZodError): FieldErrors => {
     const _issues = error.issues as unknown as ErrorIssue[]
-    const _fieldIssues = {} as FieldIssues
+    const _FieldErrors = {} as FieldErrors
     _issues.forEach(issue => {
         const formattedIssue = formatIssue(issue)
         const issueCode = resolveIssueCode(issue)
-        _fieldIssues[issue.path.join('.')] = {
+        _FieldErrors[issue.path.join('.')] = {
             code: issueCode,
             message: formattedIssue.message
         }
     })
-    return _fieldIssues
+    return _FieldErrors
 }
 
 

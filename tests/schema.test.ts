@@ -1,31 +1,29 @@
 import { describe, test, expect } from '@jest/globals'
 import { Schema } from '../src/schema'
 import { Email } from '../src/schemaTypes'
+import { Field } from '../src/fields'
 
-describe('Schema', () => {
+describe('Schema & Validation', () => {
     const validData = {
         id: '1', 
         name: 'test',
         email: 'test@email.com',
-        lowNumber: 5
+        lowNumber: 5,
+        highNumber: 150
     }
     const invalidData = {
         id: 1, 
         email: 'ping',
-        lowNumber: 100
+        lowNumber: 100,
+        highNumber: 50
     }
-
+    
     const TestSchema = Schema({
-        id: String,
-        name: {
-            type: String,
-            required: true
-        },
-        email: Email,
-        lowNumber: {
-            type: Number,
-            lt: 10
-        }
+        id: Field.String(),
+        name: Field.String({ required: true }),
+        email: Field.Email(),
+        lowNumber: Field.Number({ lt: 10 }),
+        highNumber: Field.Number({ gt: 100 })
     })
 
     test('should be definable', () => {
@@ -36,11 +34,12 @@ describe('Schema', () => {
         const { success, data, errors } = TestSchema.parse(invalidData)
         
         expect(success).toBe(false)
-        expect(data).toBe(undefined)
+        expect(data).toBe(invalidData)
         expect(errors?.id.code).toBe('invalid_type')
         expect(errors?.name.code).toBe('required')
         expect(errors?.email.code).toBe('invalid_email')
         expect(errors?.lowNumber.code).toBe('too_big')
+        expect(errors?.highNumber.code).toBe('too_small')
     })
 
     test('should return data when valid data is parsed', () => {

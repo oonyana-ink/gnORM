@@ -12,6 +12,15 @@ export function capitalize(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+
+export function getFirstDefinedProperty(key: string, ...objects: any[]) {
+    for (const obj of objects) {
+        if (obj[key] !== undefined) {
+            return obj[key]
+        }
+    }
+}
+
 // export function updateClassName(target: any, className: string) {
 //     Object.defineProperty(target, 'name', {
 //         value: className,

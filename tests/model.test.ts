@@ -1,9 +1,73 @@
 import { describe, test, expect } from '@jest/globals'
-
+import { Model, Schema, Field } from '../src'
 
 describe('Model', () => {
+    const validData = {
+        id: '1',
+        name: 'test',
+        email: 'test@email.com'
+    }
+
+    const invalidData = {
+        id: 1,
+        email: 'ping'
+    }
+
+    const TestSchema = Schema({
+        id: Field.String(),
+        name: Field.String({ required: true }),
+        email: Field.Email(),
+    })
+    const TestModel = Model({
+        schema: TestSchema
+    })
+
     test('should be definable', () => {
-        expect(true).toBe(true)
+        expect(TestModel.schema).toEqual(TestSchema)
+    })
+
+    test('should be able to return instances', () => {
+        const testInstance = TestModel(validData)
+        console.log('testInstance', testInstance)
+        expect(testInstance).toEqual(validData)
+        expect(testInstance.schema).toEqual(TestSchema)
+    })
+
+    test('should be able to parse data', () => {
+        const validDataState = TestModel.parse(validData)
+        expect(validDataState.success).toBe(true)
+        expect(validDataState.data).toEqual(validData)
+        expect(validDataState.errors).toBe(null)
+
+        const invalidDataState = TestModel.parse(invalidData)
+        expect(invalidDataState.success).toBe(false)
+        expect(invalidDataState.data).toBe(invalidData)
+        expect(invalidDataState.errors?.id.code).toBe('invalid_type')
+        expect(invalidDataState.errors?.name.code).toBe('required')
+        expect(invalidDataState.errors?.email.code).toBe('invalid_email')
+    })
+
+    test('should have status flags on instances', () => {
+        const validInstance = TestModel(validData)
+        expect(validInstance.isValid).toBe(true)
+        expect(validInstance.isInvalid).toBe(false)
+        expect(validInstance.isDirty).toBe(false)
+
+        validInstance.id = '2'
+        expect(validInstance.isDirty).toBe(true)
+
+        const invalidInstance = TestModel(invalidData)
+        expect(invalidInstance.isValid).toBe(false)
+        expect(invalidInstance.isInvalid).toBe(true)
+    })
+
+    test('should be able to get changes from instance', () => {
+        const validInstance = TestModel(validData)
+        expect(validInstance.changes).toEqual({})
+        validInstance.id = '2'
+        expect(validInstance.changes).toEqual({ id: '2' })
+        validInstance.id = '1'
+        expect(validInstance.changes).toEqual({})
     })
 })
 

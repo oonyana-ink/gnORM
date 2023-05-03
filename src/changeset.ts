@@ -1,4 +1,6 @@
-export const Changeset = (data: ModelData, model: ModelInstance) => {
+import { getFirstDefinedProperty } from "./utils"
+
+export const Changeset = (data: ModelData, model: ModelProtoInstance): ChangesetInstance => {
     const _initialData: ModelData = { ...data }
     const _model = model
     const _schema = _model.schema
@@ -10,12 +12,18 @@ export const Changeset = (data: ModelData, model: ModelInstance) => {
         get data() { return { ..._initialData, ..._changes } },
         get isValid() { return _dataState.success },
         get isInvalid() { return !_dataState.success },
-        get errors() { return _dataState.errors || null }
+        get errors() { return _dataState.errors || null },
+        get isDirty() { return Object.keys(_changes).length > 0 },
+        get changes() { return _changes }
     }
 
     const api: ModuleApi = {
         trackChanges(key: string, value: ModelDataTypes) {
-            _changes[key] = value
+            if (_initialData[key] !== value) {
+                _changes[key] = value
+            } else {
+                delete _changes[key]
+            }
             api.updateDataState()
         },
 
@@ -47,7 +55,7 @@ export const Changeset = (data: ModelData, model: ModelInstance) => {
             if (_schema.fieldKeys.includes(key)) {
                 return Reflect.get(target, key, receiver)
             } else {
-                return getters[key] || api[key]
+                return getFirstDefinedProperty(key, getters, api)
             }
         },
 
@@ -58,7 +66,7 @@ export const Changeset = (data: ModelData, model: ModelInstance) => {
     })
 
 
-    return changeset
+    return changeset as unknown as ChangesetInstance
 }
 //     const _data = new Proxy({
 //         data: {

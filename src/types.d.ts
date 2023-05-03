@@ -1,16 +1,26 @@
+interface ChangesetInstance {
+    [key: string]: ModelDataTypes
+    readonly data: ModelData
+    readonly isValid: boolean
+    readonly isInvalid: boolean
+    readonly errors?: FieldErrors
+    readonly isDirty: boolean
+    readonly changes: ModelData
+}
+
 interface DataState {
     data?: ModelData
     success: boolean
-    errors: null | FieldIssues
+    errors: null | FieldErrors
 }
 
-interface FieldIssue {
+interface FieldError {
     code: string
     message: string
 }
 
-interface FieldIssues {
-    [key: string]: FieldIssue
+interface FieldErrors {
+    [key: string]: FieldError
 }
 
 interface ErrorIssue {
@@ -23,12 +33,27 @@ interface ErrorIssue {
     validation: string
 }
 
+interface ModelConfig {
+    schema: SchemaInstance
+}
+
+interface ModelDefinition {
+    (data: ModelData): ModelInstance
+    schema: SchemaInstance
+    parse: (data: ModelData) => DataState
+}
+
 type ModelDataTypes = string | number | boolean | Object | Array<ModelDataTypes>
 interface ModelData {
     [key: string]: ModelDataTypes
 }
 
-interface ModelInstance {
+interface ModelInstance extends ChangesetInstance {
+    schema: SchemaInstance
+}
+
+interface ModelProtoInstance {
+    [key: string]: SchemaInstance
     schema: SchemaInstance
 }
 

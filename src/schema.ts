@@ -1,4 +1,7 @@
 import { Validator } from "./validation.zod"
+import { getFirstDefinedProperty } from "./utils"
+
+
 export const Schema = (fields: SchemaFieldDefinitions): SchemaInstance => {
     const _fields: SchemaFields = {}
     Object.entries(fields).forEach(([fieldKey, fieldConfig]) => {
@@ -22,7 +25,14 @@ export const Schema = (fields: SchemaFieldDefinitions): SchemaInstance => {
     }
 
     const api: ModuleApi = {
-        parse: (data: ModelData) => _validator.parse(data)
+        parse: (data: ModelData): DataState => {
+            const { success, data: parsedData, errors } = _validator.parse(data)
+            return {
+                success,
+                data: parsedData || data,
+                errors
+            }
+        }
     }
 
     const proxy = new Proxy(_fields, {
@@ -30,7 +40,7 @@ export const Schema = (fields: SchemaFieldDefinitions): SchemaInstance => {
             if (_fieldKeys.includes(key)) {
                 return Reflect.get(target, key, receiver)
             } else {
-                return getters[key] || api[key]
+                return getFirstDefinedProperty(key, getters, api)
             }
         },
 
@@ -41,7 +51,6 @@ export const Schema = (fields: SchemaFieldDefinitions): SchemaInstance => {
 
     return proxy as SchemaInstance
 }
-
 
 // import 'reflect-metadata'
 // import { getFirstDefinedProperty, getOrDefineProperty, splitCamelCase } from "./utils"
