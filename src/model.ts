@@ -1,43 +1,86 @@
 import { Changeset } from "./changeset"
+import { getDatasource } from "./datasource"
+import { Record } from "./record"
+import { Payload } from "./payload"
 import { getFirstDefinedProperty } from "./utils"
 
-export const Model = (modelConfig: ModelConfig): ModelDefinition => {
-    const _schema = modelConfig.schema
+export const Model = (...modelConfigs: ModelConfig[]): ModelConstructor => {
+    const modelConfig = modelConfigs.pop() as ModelConfig // Last config is the primary config
+    const modelMixins = modelConfigs // All other configs are mixins NOT IMPLEMENTED YET
+    const schema = modelConfig.schema
+    const datasource = getDatasource(modelConfig.datasource)
 
     const modelConstructor = (data: ModelData): ModelInstance => {
-        const model: ModelProtoInstance = {
-            schema: _schema
-        }
-        const changeset = Changeset(data, model)
+        const changeset = Changeset(data, schema)
 
-        const modelProxy = new Proxy(changeset, {
+        const getters: ModuleGetters = {
+            get _type() { return "Model" },
+            get schema() { return schema },
+        }
+
+        const api: ModuleApi = {
+            set: (data: ModelData) => {
+                changeset.set(data)
+                return model
+            }
+        }
+
+        const model = new Proxy(changeset, {
             get(target, key: string, receiver) {
-                if (_schema.fieldKeys.includes(key)) {
+                if (schema.hasKey(key)) {
                     return Reflect.get(target, key, receiver)
                 } else {
-                    return getFirstDefinedProperty(key, model, changeset)
+                    return getFirstDefinedProperty(key, getters, api, changeset, record)
                 }
             },
 
             set(target, key: string, value: any, receiver) {
-                return changeset[key] = value
+                return schema.hasKey(key) ? changeset[key] = value : false
             }
-        })
+        }) as unknown as ModelInstance
+        const record = Record(datasource, model)
 
-        return modelProxy as unknown as ModelInstance
+        return model
     }
 
     const api: ModuleApi = {
-        parse: (data: ModelData): DataState => _schema.parse(data)
+        parse: (data: ModelData): DataState => schema.parse(data),
+        create: async (data: ModelData) => {
+            const model = modelConstructor(data)
+            const payload = Payload(model)
+            return await datasource.create(payload)
+        },
+        createMany: async (dataArray: ModelData[]) => {
+            const models = dataArray.map(data => modelConstructor(data))
+            return await datasource.createMany(models)
+        },
+        update: async (data: ModelData) => {
+            const model = modelConstructor(data)
+            return await datasource.update(model)
+        },
+        updateMany: async (dataArray: ModelData[]) => {
+            const models = dataArray.map(data => modelConstructor(data))
+            return await datasource.updateMany(models)
+        },
+        get: async (query: RawQuery | QueryInstance) => {
+            return await datasource.get(query)
+        },
+        getMany: async (query: RawQuery | QueryInstance) => {
+            return await datasource.getMany(query)
+        },
+        delete: async (query: RawQuery | QueryInstance) => {
+            // return await datasource.delete(query)
+        }
     }
 
     const getters: ModuleGetters = {
-        get schema() { return _schema },
+        get _type() { return 'ModelConstructor' },
+        get schema() { return schema },
     }
 
-    const proxy = new Proxy(modelConstructor, {
+    const modelConstructorProxy = new Proxy(modelConstructor, {
         get(target, key: string, receiver) {
-            if (_schema.fieldKeys.includes(key)) {
+            if (schema.hasKey(key)) {
                 return Reflect.get(target, key, receiver)
             } else {
                 return getFirstDefinedProperty(key, getters, api)
@@ -47,9 +90,9 @@ export const Model = (modelConfig: ModelConfig): ModelDefinition => {
         set(target, key: string, value: any, receiver) {
             return false
         }
-    })
+    }) as unknown as ModelConstructor
 
-    return proxy as unknown as ModelDefinition
+    return modelConstructorProxy
 }
 
 

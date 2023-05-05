@@ -1,9 +1,8 @@
 import { getFirstDefinedProperty } from "./utils"
 
-export const Changeset = (data: ModelData, model: ModelProtoInstance): ChangesetInstance => {
+export const Changeset = (data: ModelData, schema: SchemaInstance): ChangesetInstance => {
     const _initialData: ModelData = { ...data }
-    const _model = model
-    const _schema = _model.schema
+    const _schema = schema
     const _changes: ModelData = {}
     const _dataState: DataState = { success: true, errors: null }
     const _data: ModelData = {}
@@ -34,6 +33,15 @@ export const Changeset = (data: ModelData, model: ModelProtoInstance): Changeset
             })
             _dataState.success = success
             _dataState.errors = errors
+        },
+
+        set(data: ModelData) {
+            console.log('changeset:set', data)
+            if (!data) { return } // FIXME: Should probably throw an error here
+            Object.keys(data).forEach(key => {
+                changeset[key] = data[key]
+            })
+            return changeset
         }
     }
 
@@ -52,7 +60,7 @@ export const Changeset = (data: ModelData, model: ModelProtoInstance): Changeset
 
     const changeset = new Proxy(_data, {
         get(target, key: string, receiver) {
-            if (_schema.fieldKeys.includes(key)) {
+            if (_schema.hasKey(key)) {
                 return Reflect.get(target, key, receiver)
             } else {
                 return getFirstDefinedProperty(key, getters, api)

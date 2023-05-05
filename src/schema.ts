@@ -1,7 +1,7 @@
 import { Validator } from "./validation.zod"
 import { getFirstDefinedProperty } from "./utils"
 
-
+// TODO: Add support for mixin schemas
 export const Schema = (fields: SchemaFieldDefinitions): SchemaInstance => {
     const _fields: SchemaFields = {}
     Object.entries(fields).forEach(([fieldKey, fieldConfig]) => {
@@ -16,12 +16,12 @@ export const Schema = (fields: SchemaFieldDefinitions): SchemaInstance => {
     })
     Object.freeze(_fields)
 
-    const _fieldKeys = Object.keys(_fields)
+    const _fieldKeys = new Set(Object.keys(_fields))
     const _validator = Validator(_fields)
 
     const getters: ModuleGetters = {
         get fields() { return _fields },
-        get fieldKeys() { return _fieldKeys }
+        get fieldKeys() { return Array.from(_fieldKeys) }
     }
 
     const api: ModuleApi = {
@@ -32,12 +32,13 @@ export const Schema = (fields: SchemaFieldDefinitions): SchemaInstance => {
                 data: parsedData || data,
                 errors
             }
-        }
+        },
+        hasKey: (key: string): boolean => _fieldKeys.has(key)
     }
 
     const proxy = new Proxy(_fields, {
         get(target, key: string, receiver) {
-            if (_fieldKeys.includes(key)) {
+            if (_fieldKeys.has(key)) {
                 return Reflect.get(target, key, receiver)
             } else {
                 return getFirstDefinedProperty(key, getters, api)

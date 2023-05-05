@@ -1,7 +1,19 @@
 import { describe, test, expect } from '@jest/globals'
-import { Model, Schema, Field } from '../src'
+import { Model, Schema, Field, Datasource } from '../src'
 
 describe('Model', () => {
+    Datasource({
+        name: 'primary',
+        async create(payload) { console.log('datasource.create()', payload); return payload },
+        async createMany(payloads) { return [] },
+        async update(payload) { console.log('datasrouce.update()', payload); return payload },
+        async updateMany(payloads) { return [] },
+        async get(payload) { return {} },
+        async getMany(payload) { return [] },
+        async delete(payload) { return {} },
+        async deleteMany(payloads) { return [] },
+    })
+
     const validData = {
         id: '1',
         name: 'test',
@@ -68,6 +80,19 @@ describe('Model', () => {
         expect(validInstance.changes).toEqual({ id: '2' })
         validInstance.id = '1'
         expect(validInstance.changes).toEqual({})
+    })
+
+    test('should be able to perform CRUD operations', async () => {
+        const validModel = TestModel(validData)
+
+        expect(validModel.isPersisted).toBe(false)
+        await validModel.set({
+            id: 'abc'
+        }).save()
+        expect(validModel.isPersisted).toBe(true)
+        await validModel.set({
+            id: 'xyz'
+        }).save()
     })
 })
 
