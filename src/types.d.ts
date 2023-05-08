@@ -6,7 +6,11 @@ interface ChangesetInstance {
     readonly errors?: FieldErrors
     readonly isDirty: boolean
     readonly changes: ModelData
-    set: (data: ModelData) => ChangesetInstance
+    set: (data: ModelData, meta?: ChangesetSetMeta) => ChangesetInstance
+}
+
+interface ChangesetSetMeta {
+    reset?: boolean
 }
 
 interface DatasourceConfig extends DatasourceApi {
@@ -90,7 +94,7 @@ interface ModelInstance extends ChangesetInstance, RecordInstance {
     schema: SchemaInstance
     changeset: ChangesetInstance
     record: RecordInstance
-    set: (data: ModelData) => ModelInstance
+    set: (data: ModelData, meta?: ChangesetSetMeta) => ModelInstance
 }
 
 interface ModelProtoInstance {

@@ -19,8 +19,8 @@ export const Model = (...modelConfigs: ModelConfig[]): ModelConstructor => {
         }
 
         const api: ModuleApi = {
-            set: (data: ModelData) => {
-                changeset.set(data)
+            set: (data: ModelData, meta?: ChangesetSetMeta) => {
+                changeset.set(data, meta)
                 return model
             }
         }

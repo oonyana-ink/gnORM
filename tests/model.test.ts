@@ -1,18 +1,9 @@
-import { describe, test, expect } from '@jest/globals'
+import { describe, test, expect, jest } from '@jest/globals'
 import { Model, Schema, Field, Datasource } from '../src'
+import { mockDatasource } from './mocks/mockDatasource';
 
 describe('Model', () => {
-    Datasource({
-        name: 'primary',
-        async create(payload) { console.log('datasource.create()', payload); return payload },
-        async createMany(payloads) { return [] },
-        async update(payload) { console.log('datasrouce.update()', payload); return payload },
-        async updateMany(payloads) { return [] },
-        async get(payload) { return {} },
-        async getMany(payload) { return [] },
-        async delete(payload) { return {} },
-        async deleteMany(payloads) { return [] },
-    })
+    const datasource = mockDatasource()
 
     const validData = {
         id: '1',
@@ -40,7 +31,6 @@ describe('Model', () => {
 
     test('should be able to return instances', () => {
         const testInstance = TestModel(validData)
-        console.log('testInstance', testInstance)
         expect(testInstance).toEqual(validData)
         expect(testInstance.schema).toEqual(TestSchema)
     })
@@ -84,15 +74,29 @@ describe('Model', () => {
 
     test('should be able to perform CRUD operations', async () => {
         const validModel = TestModel(validData)
+        const createMock = datasource.mocks.create as jest.Mock
+        const updateMock = datasource.mocks.update as jest.Mock
 
+        validModel.set({ id: 'abc' })
+        expect(validModel.isDirty).toBe(true)
         expect(validModel.isPersisted).toBe(false)
-        await validModel.set({
-            id: 'abc'
-        }).save()
+
+        await validModel.save()
+        expect(createMock.mock.calls.length).toBe(1)
         expect(validModel.isPersisted).toBe(true)
-        await validModel.set({
+        expect(validModel.isDirty).toBe(false)
+
+        validModel.set({ id: 'xyz' })
+        expect(validModel.isDirty).toBe(true)
+
+        await validModel.save()
+        expect(updateMock.mock.calls.length).toBe(1)
+        expect(validModel.isDirty).toBe(false)
+
+        expect(validModel.data).toEqual({
+            ...validData,
             id: 'xyz'
-        }).save()
+        })
     })
 })
 

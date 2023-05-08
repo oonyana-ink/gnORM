@@ -22,8 +22,8 @@ export const Record = (datasource: DatasourceInstance, model: ModelInstance): Re
             if (model.isValid) {
                 const payload = Payload({ data: model.changes })
                 const response = model.isPersisted ? await datasource.update(payload) : await datasource.create(payload)
+                model.set(response.data, { reset: true })
                 updateRecordState(response)
-                model.set(response.data)
             }
             return model
         },

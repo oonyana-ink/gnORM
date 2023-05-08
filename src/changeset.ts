@@ -3,9 +3,10 @@ import { getFirstDefinedProperty } from "./utils"
 export const Changeset = (data: ModelData, schema: SchemaInstance): ChangesetInstance => {
     const _initialData: ModelData = { ...data }
     const _schema = schema
-    const _changes: ModelData = {}
     const _dataState: DataState = { success: true, errors: null }
     const _data: ModelData = {}
+
+    let _changes: ModelData = {}
 
     const getters: ModuleGetters = {
         get data() { return { ..._initialData, ..._changes } },
@@ -35,13 +36,19 @@ export const Changeset = (data: ModelData, schema: SchemaInstance): ChangesetIns
             _dataState.errors = errors
         },
 
-        set(data: ModelData) {
-            console.log('changeset:set', data)
+        set(data: ModelData, meta?: ChangesetSetMeta) {
             if (!data) { return } // FIXME: Should probably throw an error here
             Object.keys(data).forEach(key => {
                 changeset[key] = data[key]
             })
+            if (meta?.reset) { api.reset() }
             return changeset
+        },
+
+        reset() {
+            Object.assign(_initialData, _changes)
+            _changes = {}
+            api.updateDataState()
         }
     }
 
