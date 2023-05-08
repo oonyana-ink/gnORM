@@ -1,6 +1,5 @@
 import { describe, test, expect } from '@jest/globals'
 import { Schema } from '../src/schema'
-import { Email } from '../src/schemaTypes'
 import { Field } from '../src/fields'
 
 describe('Schema & Validation', () => {
@@ -9,7 +8,8 @@ describe('Schema & Validation', () => {
         name: 'test',
         email: 'test@email.com',
         lowNumber: 5,
-        highNumber: 150
+        highNumber: 150,
+        mixinField: 'mixin value'
     }
     const invalidData = {
         id: 1, 
@@ -17,8 +17,12 @@ describe('Schema & Validation', () => {
         lowNumber: 100,
         highNumber: 50
     }
+
+    const MixinSchema = Schema({
+        mixinField: Field.String({ required: true })
+    })
     
-    const TestSchema = Schema({
+    const TestSchema = Schema(MixinSchema, {
         id: Field.String(),
         name: Field.String({ required: true }),
         email: Field.Email(),
@@ -27,7 +31,7 @@ describe('Schema & Validation', () => {
     })
 
     test('should be definable', () => {
-        expect(TestSchema.fieldKeys).toEqual(Object.keys(validData))
+        expect(TestSchema.fieldKeys.sort()).toEqual(Object.keys(validData).sort())
     })
     
     test('should return errors when invalid data is parsed', () => {
@@ -40,6 +44,7 @@ describe('Schema & Validation', () => {
         expect(errors?.email.code).toBe('invalid_email')
         expect(errors?.lowNumber.code).toBe('too_big')
         expect(errors?.highNumber.code).toBe('too_small')
+        expect(errors?.mixinField.code).toBe('required')
     })
 
     test('should return data when valid data is parsed', () => {

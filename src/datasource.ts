@@ -18,21 +18,21 @@ export const Datasource = (datasourceConfig: DatasourceConfig): DatasourceInstan
     const datasource = {
         name: 'primary'
     }
-
     const getters: ModuleGetters = {}
 
     const crudMethod = (method: DatasourceApiMethod | DatasourceApiManyMethod, many: boolean = false) => {
-        return async (payload: PayloadInstance | PayloadInstance[]) => {
+        return async (payload: any) => {
             if (!datasourceConfig.hasOwnProperty(method)) {
                 throw new Error(`${method} on datasource (${datasource.name}) not implemented`)
             }
+            payload = many ? payload as PayloadInstance[] : payload as PayloadInstance
 
             let response
             if (many) {
-                response = await datasourceConfig[method as DatasourceApiManyMethod](payload as PayloadInstance[])
+                response = await datasourceConfig[method as DatasourceApiManyMethod](payload)
                 response.forEach((responseItem: PayloadInstance) => responseItem.meta.persisted = true)
             } else {
-                response = await datasourceConfig[method as DatasourceApiMethod](payload as PayloadInstance)
+                response = await datasourceConfig[method as DatasourceApiMethod](payload)
                 response.meta.persisted = true // FIXME: check response status
             }
             return response
@@ -46,7 +46,7 @@ export const Datasource = (datasourceConfig: DatasourceConfig): DatasourceInstan
         get: crudMethod('get'),
         getMany: crudMethod('getMany', true),
         delete: crudMethod('delete'),
-        deleteMany: crudMethod('deleteMany', true),
+        deleteMany: crudMethod('deleteMany', true)
     }
 
     const datasourceProxy = new Proxy(datasource, {
@@ -58,44 +58,3 @@ export const Datasource = (datasourceConfig: DatasourceConfig): DatasourceInstan
     registerDatasource(datasourceProxy)
     return datasourceProxy
 }
-
-
-// import { getFirstDefinedProperty, mapProperties } from './utils'
-
-// const datasources = {} as objectInstance
-// export const getDatasource = (key: string = 'primary') => {
-// <<<<<<< HEAD
-// =======
-//     console.log('getDatasource', key, datasources)
-// >>>>>>> 8b11997 (Collections and datasources)
-//     return datasources[key]
-// }
-
-// //             Base Class
-// // -------------------------------------
-// class BaseDatasource {
-//     key: string = 'primary'
-//     constructor() {
-//         datasources[this.key] = this
-// <<<<<<< HEAD
-//         console.log('datasources', datasources)
-//     }
-//     async create(collectionName: string, data: ModelData) {
-// =======
-//         console.dir(this)
-//     }
-//     async create(collectionName: string, data: ModelData) {
-//         console.log('BaseDatasource:get', collectionName, data)
-// >>>>>>> 8b11997 (Collections and datasources)
-//         return data
-//     }
-//     async createMany() { }
-//     async update() { }
-//     async updateMany() { }
-//     async get() { }
-//     async getMany() { }
-//     async delete() { }
-//     async deleteMany() { }
-// }
-
-// export const Datasource = BaseDatasource as unknown as DatasourceClassConstructor

@@ -13,6 +13,10 @@ interface ChangesetSetMeta {
     reset?: boolean
 }
 
+interface CollectionReferences {
+    [key: string]: any
+}
+
 interface DatasourceConfig extends DatasourceApi {
     [key: DatasourceApiMethod]: (payload: PayloadInstance) => Promise<PayloadInstance>
     [key: DatasourceApiManyMethod]: (payload: PayloadInstance[]) => Promise<PayloadInstance[]>
@@ -55,6 +59,19 @@ interface FieldErrors {
     [key: string]: FieldError
 }
 
+interface FieldConfig {
+    [key: string]: any
+}
+
+interface FieldInstance {
+    [key: string]: any
+    type: Function
+}
+
+interface FieldTypeConfigs {
+    [key: string]: (fieldConfig?: FieldConfig) => FieldTypeInstance
+}
+
 interface ErrorIssue {
     path: string[]
     code: string
@@ -67,12 +84,14 @@ interface ErrorIssue {
 
 interface ModelConfig {
     datasource?: string
+    collection: string
     schema: SchemaInstance
 }
 
 interface ModelConstructor implements DatasourceApi {
     (data: ModelData): ModelInstance
     schema: SchemaInstance
+    collection: string
     parse: (data: ModelData) => DataState
 
     create: (data: ModelData) => Promise<ModelInstance>
@@ -91,6 +110,7 @@ interface ModelData {
 }
 
 interface ModelInstance extends ChangesetInstance, RecordInstance {
+    collection: string
     schema: SchemaInstance
     changeset: ChangesetInstance
     record: RecordInstance
@@ -112,7 +132,13 @@ interface ModuleGetters { // FIXME
 }
 
 interface PayloadInstance { // FIXME
-    [key: string]: any
+    query: QueryInstance
+    data: ModelData
+    meta: {
+        collection: string
+        action: string
+        [key: string]: any
+    }
 }
 
 interface PayloadMetaConfig { // FIXME
@@ -140,6 +166,8 @@ interface RecordInstance { // FIXME
     create: () => Promise<ModelInstance>
     update: () => Promise<ModelInstance>
 }
+
+type SchemaConfig = SchemaInstance | SchemaFieldDefinitions
 
 type SchemaDataTypes = string | number | boolean
 interface SchemaDefinition {
