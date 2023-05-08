@@ -3,8 +3,6 @@ import { Model, Schema, Field, Datasource } from '../src'
 import { mockDatasource } from './mocks/mockDatasource';
 
 describe('Model', () => {
-    const datasource = mockDatasource()
-
     const validData = {
         id: '1',
         name: 'test',
@@ -21,6 +19,7 @@ describe('Model', () => {
         name: Field.String({ required: true }),
         email: Field.Email(),
     })
+
     const TestModel = Model({
         schema: TestSchema
     })
@@ -73,6 +72,7 @@ describe('Model', () => {
     })
 
     test('should be able to perform CRUD operations', async () => {
+        const datasource = mockDatasource()
         const validModel = TestModel(validData)
         const createMock = datasource.mocks.create as jest.Mock
         const updateMock = datasource.mocks.update as jest.Mock
@@ -97,6 +97,48 @@ describe('Model', () => {
             ...validData,
             id: 'xyz'
         })
+    })
+
+    test('should not perform CRUD operations on invalid instances', async () => {
+        const datasource = mockDatasource()
+        const invalidModel = TestModel(invalidData)
+        const validModel = TestModel(validData)
+        const createMock = datasource.mocks.create as jest.Mock
+        const updateMock = datasource.mocks.update as jest.Mock
+
+        invalidModel.id = 123
+        validModel.id = 123
+
+        await invalidModel.save()
+        expect(invalidModel.isDirty).toBe(true)
+        expect(invalidModel.isPersisted).toBe(false)
+        expect(invalidModel.errors).toBeDefined()
+
+        await validModel.save()
+        expect(validModel.isDirty).toBe(true)
+        expect(validModel.isPersisted).toBe(false)
+        expect(validModel.errors).toBeDefined()
+
+        expect(createMock.mock.calls.length).toBe(0)
+        expect(updateMock.mock.calls.length).toBe(0)
+
+        validModel.id = '123'
+        await validModel.save()
+        expect(validModel.isPersisted).toBe(true)
+        expect(validModel.isDirty).toBe(false)
+        expect(validModel.errors).toBe(null)
+
+        expect(createMock.mock.calls.length).toBe(1)
+        expect(updateMock.mock.calls.length).toBe(0)
+
+        validModel.id = 123
+        await validModel.save()
+        expect(validModel.isDirty).toBe(true)
+        expect(validModel.isPersisted).toBe(true)
+        expect(validModel.errors).toBeDefined()
+
+        expect(createMock.mock.calls.length).toBe(1)
+        expect(updateMock.mock.calls.length).toBe(0)
     })
 })
 

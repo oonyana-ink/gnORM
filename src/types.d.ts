@@ -94,6 +94,7 @@ interface ModelInstance extends ChangesetInstance, RecordInstance {
     schema: SchemaInstance
     changeset: ChangesetInstance
     record: RecordInstance
+    datasource: DatasourceInstance
     set: (data: ModelData, meta?: ChangesetSetMeta) => ModelInstance
 }
 

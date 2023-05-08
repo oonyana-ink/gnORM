@@ -8,13 +8,13 @@ export const Model = (...modelConfigs: ModelConfig[]): ModelConstructor => {
     const modelConfig = modelConfigs.pop() as ModelConfig // Last config is the primary config
     const modelMixins = modelConfigs // All other configs are mixins NOT IMPLEMENTED YET
     const schema = modelConfig.schema
-    const datasource = getDatasource(modelConfig.datasource)
 
     const modelConstructor = (data: ModelData): ModelInstance => {
         const changeset = Changeset(data, schema)
 
         const getters: ModuleGetters = {
             get _type() { return "Model" },
+            get datasource() { return getDatasource(modelConfig.datasource) },
             get schema() { return schema },
         }
 
@@ -38,34 +38,47 @@ export const Model = (...modelConfigs: ModelConfig[]): ModelConstructor => {
                 return schema.hasKey(key) ? changeset[key] = value : false
             }
         }) as unknown as ModelInstance
-        const record = Record(datasource, model)
+        const record = Record(model)
 
         return model
     }
 
+    const getters: ModuleGetters = {
+        get _type() { return 'ModelConstructor' },
+        get datasource() { return getDatasource(modelConfig.datasource) },
+        get schema() { return schema },
+    }
+
     const api: ModuleApi = {
         parse: (data: ModelData): DataState => schema.parse(data),
+        // TODO: Use the model.save implementation where possible
         create: async (data: ModelData) => {
+            const datasource = getters.datasource
             const model = modelConstructor(data)
             const payload = Payload(model)
             return await datasource.create(payload)
         },
         createMany: async (dataArray: ModelData[]) => {
+            const datasource = getters.datasource
             const models = dataArray.map(data => modelConstructor(data))
             return await datasource.createMany(models)
         },
         update: async (data: ModelData) => {
+            const datasource = getters.datasource
             const model = modelConstructor(data)
             return await datasource.update(model)
         },
         updateMany: async (dataArray: ModelData[]) => {
+            const datasource = getters.datasource
             const models = dataArray.map(data => modelConstructor(data))
             return await datasource.updateMany(models)
         },
         get: async (query: RawQuery | QueryInstance) => {
+            const datasource = getters.datasource
             return await datasource.get(query)
         },
         getMany: async (query: RawQuery | QueryInstance) => {
+            const datasource = getters.datasource
             return await datasource.getMany(query)
         },
         delete: async (query: RawQuery | QueryInstance) => {
@@ -73,10 +86,6 @@ export const Model = (...modelConfigs: ModelConfig[]): ModelConstructor => {
         }
     }
 
-    const getters: ModuleGetters = {
-        get _type() { return 'ModelConstructor' },
-        get schema() { return schema },
-    }
 
     const modelConstructorProxy = new Proxy(modelConstructor, {
         get(target, key: string, receiver) {

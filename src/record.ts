@@ -1,7 +1,7 @@
 import { getFirstDefinedProperty } from "./utils"
 import { Payload } from "./payload"
 
-export const Record = (datasource: DatasourceInstance, model: ModelInstance): RecordInstance => {
+export const Record = (model: ModelInstance): RecordInstance => {
     const record = {}
     const _recordState = {
         persisted: false
@@ -19,7 +19,10 @@ export const Record = (datasource: DatasourceInstance, model: ModelInstance): Re
         async fetch() { },
         async create() { },
         async save() {
+            console.log('record:save > model.isValid', model.isValid)
             if (model.isValid) {
+                console.log('>>> saving', model)
+                const datasource = model.datasource
                 const payload = Payload({ data: model.changes })
                 const response = model.isPersisted ? await datasource.update(payload) : await datasource.create(payload)
                 model.set(response.data, { reset: true })

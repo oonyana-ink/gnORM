@@ -5,7 +5,7 @@ const datasources: DatasourceRegistry = {}
 const registerDatasource = (datasource: DatasourceInstance) => {
     const name = datasource.name
     if (datasources[name]) {
-        console.warn(`Datasource (${name}) already registered`)
+        console.warn(`Datasource (${name}) is already registered and will be overwritten.`)
     }
     datasources[name] = datasource
 }

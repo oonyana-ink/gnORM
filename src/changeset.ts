@@ -10,8 +10,11 @@ export const Changeset = (data: ModelData, schema: SchemaInstance): ChangesetIns
 
     const getters: ModuleGetters = {
         get data() { return { ..._initialData, ..._changes } },
-        get isValid() { return _dataState.success },
-        get isInvalid() { return !_dataState.success },
+        get isValid() {
+            api.updateDataState()
+            return _dataState.success
+        },
+        get isInvalid() { return !getters.isValid },
         get errors() { return _dataState.errors || null },
         get isDirty() { return Object.keys(_changes).length > 0 },
         get changes() { return _changes }
