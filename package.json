@@ -19,6 +19,7 @@
   },
   "types": "./src/types.d.ts",
   "dependencies": {
+    "reflect-metadata": "^0.1.13",
     "zod": "^3.21.4"
   }
 }

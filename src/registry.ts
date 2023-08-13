@@ -1,3 +1,24 @@
+const Registry = () => {
+    const schemas: SchemaRegistryCache = {}
+    const models: ModelRegistryCache = {}
+    return {
+        registerSchema: (schema: SchemaInstance) => {
+            schemas[schema.name] = schema
+        },
+        registerModel: (model: ModelConstructor) => {
+            models[model.modelName] = model
+        },
+        getSchema: (name: string): SchemaInstance => {
+            return schemas[name]
+        },
+        getModel: (name: string): ModelConstructor => {
+            return models[name]
+        }
+    }
+}
+
+export const registry = Registry()
+
 // class Registry {
 //     models: { [key: string]: ModelConstructor } = {}
 //     constructor() { }
